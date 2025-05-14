@@ -1,26 +1,37 @@
 "use client"
 
-import { useUser } from "@clerk/nextjs"
+import { useUser, UserButton, SignInButton, useClerk } from "@clerk/nextjs"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import Dashboard from "@/components/dashboard"
 import Background from "@/components/background"
-import { Brain, Shield, Clock, Users, CheckCircle2 } from "lucide-react"
+import { Brain, Shield, Clock, Users, CheckCircle2, Sun, Moon, LogOut } from "lucide-react"
 import { Card } from "@/components/ui/card"
 import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import "./page.css"
 
 export default function DashboardPage() {
-  const { isSignedIn } = useUser()
+  const { isSignedIn, user } = useUser()
+  const { signOut } = useClerk()
   const router = useRouter()
   const { theme, setTheme } = useTheme()
   const statsRef = useRef<HTMLElement>(null)
   const [statsVisible, setStatsVisible] = useState(false)
+  const mainRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!isSignedIn) {
       router.push('/')
+    } else {
+      // Scroll to top when component mounts
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }, [isSignedIn, router])
 
@@ -45,30 +56,66 @@ export default function DashboardPage() {
     }
   }, [])
 
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      router.push('/')
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
+
   if (!isSignedIn) {
     return null
   }
 
   return (
-    <main className="min-h-screen relative">
+    <main className="min-h-screen relative overflow-x-hidden" ref={mainRef}>
       <Background />
-      <div className="relative container mx-auto dashboard-container">
-        {/* Theme Toggle Button */}
-        <div className="absolute top-4 right-4">
+      <div className="relative container mx-auto dashboard-container pt-20">
+        {/* Header with Theme Toggle and User Menu */}
+        <div className="fixed top-4 right-4 flex items-center gap-4 z-50 bg-background/80 backdrop-blur-sm p-2 rounded-full">
           <Button
             variant="outline"
             size="icon"
             onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
             className="rounded-full w-10 h-10 border-blue-600 text-blue-600 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/30"
           >
-            {theme === 'light' ? '🌙' : '☀️'}
+            {theme === 'light' ? (
+              <Moon className="h-5 w-5" />
+            ) : (
+              <Sun className="h-5 w-5" />
+            )}
           </Button>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <UserButton afterSignOutUrl="/" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuItem className="flex items-center gap-2 p-4">
+                <div className="flex flex-col">
+                  <span className="font-medium">{user?.fullName}</span>
+                  <span className="text-sm text-muted-foreground">{user?.primaryEmailAddress?.emailAddress}</span>
+                </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="flex items-center gap-2 text-red-600 focus:text-red-600 cursor-pointer"
+                onClick={handleSignOut}
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sign out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Welcome Header */}
         <section className="mb-12 text-center animate-fade-in-up">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-800 dark:text-white mb-4">
-            Welcome to Your AI-Powered Dashboard
+            Welcome back, {user?.firstName}!
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto mb-8">
             Your personal hub for brain tumor detection and analysis. Upload scans, get instant results, and connect with experts.

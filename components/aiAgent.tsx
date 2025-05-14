@@ -15,7 +15,7 @@ export default function AIChat() {
       script.innerHTML = `
         import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
         createChat({
-          webhookUrl: 'https://qaaid.app.n8n.cloud/webhook/877d47f1-195d-4c1d-a147-91713d189fff/chat',
+          webhookUrl: 'https://mohamed2.app.n8n.cloud/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat',
           title: 'Medical AI Assistant',
           subtitle: 'Ask questions about your results',
           theme: {

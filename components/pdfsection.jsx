@@ -34,7 +34,7 @@ const PdfChatSection = () => {
     formData.append("file", uploadedFile);
 
     try {
-      const response = await axios.post("http://127.0.0.1:5000/api/upload-pdf", formData, {
+      const response = await axios.post("http://127.0.0.1:8080/api/upload-pdf", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -74,7 +74,7 @@ const PdfChatSection = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post("http://127.0.0.1:5000/api/query-file", {
+      const response = await axios.post("http://127.0.0.1:8080/api/query-file", {
         file_id: fileId,
         prompt: userMessage.text,
       });
@@ -121,7 +121,7 @@ const PdfChatSection = () => {
     <div className="flex flex-col h-full p-6 bg-gray-50 dark:bg-gray-900 rounded-lg shadow-md">
       {/* Header Section */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold">PDF Chat Assistant</h2>
+        <h2 className="text-xl font-semibold">Medical Report PDF Chat Assistant</h2>
         <div className="bg-primary/10 text-primary p-1 rounded-full">
           <FileText className="h-4 w-4" />
         </div>
